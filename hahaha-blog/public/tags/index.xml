@@ -5,6 +5,16 @@
     <link>https://add2333.github.io/tags/</link>
     <description>Recent content in Tags on hahaha blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-cn</language><atom:link href="https://add2333.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 20 Jan 2024 10:15:49 +0800</lastBuildDate><atom:link href="https://add2333.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LaTeX</title>
+      <link>https://add2333.github.io/tags/latex/</link>
+      <pubDate>Sat, 20 Jan 2024 10:15:49 +0800</pubDate>
+      
+      <guid>https://add2333.github.io/tags/latex/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>

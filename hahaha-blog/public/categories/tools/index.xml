@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>hahaha blog</title>
-    <link>https://add2333.github.io/</link>
-    <description>Recent content on hahaha blog</description>
+    <title>tools on hahaha blog</title>
+    <link>https://add2333.github.io/categories/tools/</link>
+    <description>Recent content in tools on hahaha blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 20 Jan 2024 10:15:49 +0800</lastBuildDate><atom:link href="https://add2333.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 20 Jan 2024 10:15:49 +0800</lastBuildDate><atom:link href="https://add2333.github.io/categories/tools/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Beamer 基础使用</title>
       <link>https://add2333.github.io/tools/beamer/</link>
@@ -15,7 +15,6 @@
       <guid>https://add2333.github.io/tools/beamer/</guid>
       <description>What is Beamer Beamer is a LaTeX document class designed for creating presentation slides. It provides a set of features and styles to easily craft professional and visually appealing presentations using LaTeX syntax. Users can customize layouts, themes, colors, and incorporate elements like mathematical formulas, images, and tables. Beamer also supports animations and transitions, enhancing the interactivity and visual appeal of presentations. Overall, Beamer is a powerful tool for LaTeX users seeking high-quality typesetting and flexibility in creating presentations.</description>
     </item>
-    
     
   </channel>
 </rss>
