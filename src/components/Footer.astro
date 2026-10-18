@@ -1,0 +1,18 @@
+---
+import Lang from "./Lang.astro";
+import { both } from "../i18n";
+import { SITE } from "../utils";
+const year = new Date().getFullYear();
+const builtWith = both("builtWith");
+const sitemap = both("sitemap");
+---
+<footer class="footer">
+  <div class="container footer__inner">
+    <span>© {year} {SITE.author}</span>
+    <span>
+      <Lang en={builtWith.en} zh={builtWith.zh} /> <a href="https://astro.build">Astro</a> ·
+      <a href="/rss.xml">RSS</a> ·
+      <a href="/sitemap-index.xml"><Lang en={sitemap.en} zh={sitemap.zh} /></a>
+    </span>
+  </div>
+</footer>

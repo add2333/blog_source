@@ -1,0 +1,23 @@
+---
+import Base from "../../layouts/Base.astro";
+import PostList from "../../components/PostList.astro";
+import { slugify, sortedPosts } from "../../utils";
+
+export async function getStaticPaths() {
+  const posts = await sortedPosts();
+  const slugs = [...new Set(posts.flatMap((post) => post.data.tags.map(slugify)))];
+  return slugs.map((slug) => ({
+    params: { tag: slug },
+    props: { slug, posts: posts.filter((post) => post.data.tags.map(slugify).includes(slug)) },
+  }));
+}
+
+const { slug, posts } = Astro.props;
+const name = posts[0]?.data.tags.find((tag) => slugify(tag) === slug) ?? slug;
+---
+<Base title={`#${name}`} description={`Posts tagged ${name}`}>
+  <section class="intro">
+    <h1>#{name}</h1>
+  </section>
+  <PostList posts={posts} />
+</Base>

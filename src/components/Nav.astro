@@ -1,0 +1,41 @@
+---
+import Lang from "./Lang.astro";
+import LangToggle from "./LangToggle.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+import { both } from "../i18n";
+import { SITE } from "../utils";
+
+const path = Astro.url.pathname;
+const links = [
+  { href: "/", label: both("home") },
+  { href: "/blog/", label: both("blog") },
+  { href: "/tags/", label: both("tags") },
+  { href: "/about/", label: both("about") },
+];
+const search = both("search");
+const isCurrent = (href: string) =>
+  href === "/" ? path === "/" : path === href || path.startsWith(href);
+---
+<header class="navbar">
+  <nav class="container navbar__inner" aria-label="Main">
+    <a class="navbar__brand" href="/">{SITE.author}</a>
+    <ul class="navbar__links">
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href} aria-current={isCurrent(link.href) ? "page" : undefined}>
+              <Lang en={link.label.en} zh={link.label.zh} />
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href="/search/" data-label-en={search.en} data-label-zh={search.zh}>
+          <Lang en={search.en} zh={search.zh} />
+        </a>
+      </li>
+      <li><LangToggle /></li>
+      <li><ThemeToggle /></li>
+    </ul>
+  </nav>
+</header>

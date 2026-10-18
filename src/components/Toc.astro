@@ -1,0 +1,102 @@
+---
+import Lang from "./Lang.astro";
+import { both } from "../i18n";
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+const items = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const contents = both("contents");
+const toggleLabel = both("toggleContents");
+---
+{
+  items.length > 0 && (
+    <aside class="toc" id="toc" data-pagefind-ignore>
+      <button
+        class="toc__toggle"
+        id="toc-toggle"
+        type="button"
+        aria-expanded="true"
+        aria-controls="toc-panel"
+        data-label-en={toggleLabel.en}
+        data-label-zh={toggleLabel.zh}
+      >
+        <svg
+          class="toc__chevron"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M15 6l-6 6 6 6" />
+        </svg>
+      </button>
+      <div class="toc__panel" id="toc-panel">
+        <p class="toc__heading">
+          <Lang en={contents.en} zh={contents.zh} />
+        </p>
+        <div class="toc__collapse">
+          <ul class="toc__list">
+            {items.map((heading) => (
+              <li style={heading.depth === 3 ? "margin-left:1rem" : undefined}>
+                <a href={`#${heading.slug}`}>{heading.text}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </aside>
+  )
+}
+
+<script is:inline>
+  (() => {
+    const article = document.querySelector(".post-body");
+    const toggle = document.getElementById("toc-toggle");
+    if (!article || !toggle) return;
+
+    const wide = window.matchMedia("(min-width: 1000px)");
+    const read = () => localStorage.getItem("toc");
+
+    const apply = (open) => {
+      article.dataset.toc = open ? "open" : "closed";
+      toggle.setAttribute("aria-expanded", String(open));
+    };
+
+    const stored = read();
+    // Default: open on wide screens, folded on phones.
+    apply(stored === null ? wide.matches : stored === "open");
+
+    toggle.addEventListener("click", () => {
+      const open = article.dataset.toc !== "open";
+      localStorage.setItem("toc", open ? "open" : "closed");
+      apply(open);
+    });
+
+    // Until the reader picks a side, keep following the breakpoint.
+    wide.addEventListener("change", () => {
+      if (read() === null) apply(wide.matches);
+    });
+
+    // On phones the rail folds vertically: get out of the way once a heading is picked.
+    if (!wide.matches) {
+      for (const link of article.querySelectorAll(".toc__list a")) {
+        link.addEventListener("click", () => {
+          localStorage.setItem("toc", "closed");
+          apply(false);
+        });
+      }
+    }
+  })();
+</script>

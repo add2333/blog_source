@@ -1,0 +1,17 @@
+---
+import Base from "../layouts/Base.astro";
+import Lang from "../components/Lang.astro";
+import { SITE } from "../utils";
+---
+<Base title="About" description={`About ${SITE.author}`}>
+  <section class="intro">
+    <h1><Lang en="About" zh="关于" /></h1>
+  </section>
+  <div class="prose">
+    <!-- 在下面写你的自我介绍，中英文各写一份，用 <Lang en="…" zh="…" /> 包起来 -->
+    <p><strong>{SITE.author}</strong></p>
+    <ul>
+      <li><a href="https://github.com/add2333">GitHub</a></li>
+    </ul>
+  </div>
+</Base>

@@ -1,0 +1,41 @@
+---
+import { both } from "../i18n";
+
+const label = both("switchLanguage");
+---
+<button
+  class="lang-toggle"
+  id="lang-toggle"
+  type="button"
+  data-label-en={label.en}
+  data-label-zh={label.zh}
+>
+  <span class="i18n-en" lang="en">中</span><span class="i18n-zh" lang="zh-CN">EN</span>
+</button>
+
+<script>
+  const root = document.documentElement;
+
+  const applyLang = (lang: string) => {
+    const value = lang === "zh" ? "zh" : "en";
+    root.dataset.lang = value;
+    root.lang = value === "zh" ? "zh-CN" : "en";
+
+    for (const el of document.querySelectorAll<HTMLElement>("[data-label-en]")) {
+      const label = value === "zh" ? el.dataset.labelZh : el.dataset.labelEn;
+      if (!label) continue;
+      el.setAttribute("aria-label", label);
+      el.setAttribute("title", label);
+    }
+
+    document.dispatchEvent(new CustomEvent("langchange", { detail: { lang: value } }));
+  };
+
+  applyLang(root.dataset.lang ?? "en");
+
+  document.getElementById("lang-toggle")?.addEventListener("click", () => {
+    const next = root.dataset.lang === "zh" ? "en" : "zh";
+    localStorage.setItem("lang", next);
+    applyLang(next);
+  });
+</script>

@@ -1,0 +1,147 @@
+---
+import "../styles/global.css";
+import Footer from "../components/Footer.astro";
+import Nav from "../components/Nav.astro";
+import { SITE } from "../utils";
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: "website" | "article";
+  /** Extra class on <body>, e.g. "page-home". */
+  pageClass?: string;
+}
+
+const { title, description = SITE.description, type = "website", pageClass } = Astro.props;
+const pageTitle = !title || title === SITE.title ? `${SITE.title} blog` : `${title} | ${SITE.title}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
+const ogImage = new URL("/og.png", Astro.site ?? SITE.url).href;
+const ogImageAlt = `${SITE.author} — ${SITE.description}`;
+const isHome = Astro.url.pathname === "/" || Astro.url.pathname === "/index.html";
+---
+<!doctype html>
+<html lang={SITE.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={SITE.author} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={`${SITE.title} blog`} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="zh_CN" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+    {
+      isHome && (
+        <script is:inline>
+          // The home hero flies the greeting into the navbar, so the brand starts
+          // hidden. Set this before the first paint to avoid showing two titles.
+          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            document.documentElement.classList.add("hero-js");
+          }
+        </script>
+      )
+    }
+    <script is:inline>
+      // Pick the UI language before the first paint so nothing flashes twice.
+      (() => {
+        try {
+          const stored = localStorage.getItem("lang");
+          const prefersZh = (navigator.language || "").toLowerCase().startsWith("zh");
+          const lang = stored === "zh" || stored === "en" ? stored : prefersZh ? "zh" : "en";
+          document.documentElement.dataset.lang = lang;
+          document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+        } catch {}
+      })();
+    </script>
+    <script is:inline>
+      (() => {
+        try {
+          const stored = localStorage.getItem("theme");
+          if (stored) document.documentElement.dataset.theme = stored;
+        } catch {}
+      })();
+    </script>
+    <slot name="head" />
+  </head>
+  <body class={pageClass}>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <Nav />
+    <main class="container">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      // Reading progress
+      const bar = document.getElementById("progress");
+      const onScroll = () => {
+        if (!bar) return;
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = max > 0 ? `${(window.scrollY / max) * 100}%` : "0%";
+      };
+      document.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+
+      // Copy button on every code block
+      const copyLabel = () =>
+        document.documentElement.dataset.lang === "zh"
+          ? { copy: "复制", copied: "已复制", failed: "复制失败" }
+          : { copy: "copy", copied: "copied", failed: "failed" };
+      for (const pre of document.querySelectorAll<HTMLPreElement>(".prose pre")) {
+        const button = document.createElement("button");
+        button.className = "copy-code";
+        button.type = "button";
+        button.textContent = "copy";
+        button.addEventListener("click", async () => {
+          const code = pre.querySelector("code")?.textContent ?? "";
+          try {
+            await navigator.clipboard.writeText(code);
+            button.textContent = copyLabel().copied;
+          } catch {
+            button.textContent = copyLabel().failed;
+          }
+          setTimeout(() => (button.textContent = copyLabel().copy), 1600);
+        });
+        pre.appendChild(button);
+      }
+
+      // Highlight the current section in the table of contents
+      const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>(".toc__list a")];
+      if (tocLinks.length) {
+        const targets = tocLinks
+          .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+          .filter((el): el is HTMLElement => Boolean(el));
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              for (const link of tocLinks) link.removeAttribute("data-active");
+              const active = tocLinks.find(
+                (link) => decodeURIComponent(link.hash.slice(1)) === entry.target.id,
+              );
+              active?.setAttribute("data-active", "");
+            }
+          },
+          { rootMargin: "-72px 0px -70% 0px", threshold: 0 },
+        );
+        targets.forEach((target) => observer.observe(target));
+      }
+    </script>
+  </body>
+</html>

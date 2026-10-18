@@ -1,0 +1,22 @@
+---
+import Base from "../../layouts/Base.astro";
+import Lang from "../../components/Lang.astro";
+import { both } from "../../i18n";
+import { sortedPosts, taxonomyCounts } from "../../utils";
+
+const posts = await sortedPosts();
+const categories = taxonomyCounts(posts, "categories");
+const heading = both("categories");
+---
+<Base title="Categories" description="All categories">
+  <section class="intro">
+    <h1><Lang en={heading.en} zh={heading.zh} /></h1>
+  </section>
+  <ul class="taxonomy">
+    {categories.map((category) => (
+      <li>
+        <a href={`/categories/${category.slug}/`}>{category.name} <small>{category.count}</small></a>
+      </li>
+    ))}
+  </ul>
+</Base>

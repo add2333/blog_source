@@ -1,0 +1,22 @@
+{
+  "name": "hahaha-blog",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && pagefind --site dist",
+    "preview": "astro preview",
+    "import:legacy": "python3 scripts/import-legacy.py"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.3",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.4.0",
+    "katex": "^0.19.0",
+    "pagefind": "^1.5.2",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
+  }
+}

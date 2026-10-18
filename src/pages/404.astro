@@ -1,0 +1,18 @@
+---
+import Base from "../layouts/Base.astro";
+import Lang from "../components/Lang.astro";
+import { both } from "../i18n";
+
+const blurb = both("notFoundBlurb");
+---
+<Base title="Not found" description="Page not found">
+  <section class="intro">
+    <h1>404</h1>
+    <p><Lang en={blurb.en} zh={blurb.zh} /></p>
+    <p>
+      <a href="/"><Lang en="Home" zh="首页" /></a> ·
+      <a href="/blog/"><Lang en="All posts" zh="全部文章" /></a> ·
+      <a href="/search/"><Lang en="Search" zh="搜索" /></a>
+    </p>
+  </section>
+</Base>

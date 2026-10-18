@@ -1,0 +1,48 @@
+name: Deploy blog
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push should win: cancel the deploy that is still running.
+concurrency:
+  group: deploy-blog
+  cancel-in-progress: true
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the site
+        run: npm run build
+        env:
+          ASTRO_TELEMETRY_DISABLED: 1
+
+      # GitHub only serves add2333.github.io from the repo of the same name,
+      # so the build output is pushed there. Needs a PAT with repo scope,
+      # stored as the GH_PAGES_TOKEN secret.
+      - name: Publish to add2333.github.io
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.GH_PAGES_TOKEN }}
+          external_repository: add2333/add2333.github.io
+          publish_branch: main
+          publish_dir: ./dist
+          force_orphan: true
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
+          commit_message: "deploy: ${{ github.event.head_commit.message }}"

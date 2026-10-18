@@ -1,0 +1,274 @@
+---
+import Base from "../layouts/Base.astro";
+import Lang from "../components/Lang.astro";
+import PostList from "../components/PostList.astro";
+import { both } from "../i18n";
+import { SITE, sortedPosts } from "../utils";
+
+const posts = await sortedPosts();
+const recent = both("recentPosts");
+const lede = both("heroLede");
+const readBlog = both("heroReadBlog");
+const aboutMe = both("heroAboutMe");
+---
+<Base pageClass="page-home">
+  <section class="hero-shell">
+    <div class="hero" id="hero">
+      <div class="container hero__inner">
+        <h1 class="hero__title">
+          <span class="i18n-en"
+            ><span class="hero__lead">Hi, I'm </span><span class="hero__name"
+              >{SITE.author}</span
+            ><span class="hero__tail">.</span></span
+          >
+          <span class="i18n-zh"
+            ><span class="hero__lead">你好，我是 </span><span class="hero__name"
+              >{SITE.author}</span
+            ><span class="hero__tail">。</span></span
+          >
+        </h1>
+
+        <div class="hero__copy">
+          <p class="hero__lede animate-in" style="--i:0">
+            <Lang en={lede.en} zh={lede.zh} />
+          </p>
+          <p class="hero__links animate-in" style="--i:1">
+            <a class="hero__link" href="/blog/">
+              <Lang en={readBlog.en} zh={readBlog.zh} />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M9 5.5 15.5 12 9 18.5"></path>
+              </svg>
+            </a>
+            <a class="hero__link" href="/about/">
+              <Lang en={aboutMe.en} zh={aboutMe.zh} />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M9 5.5 15.5 12 9 18.5"></path>
+              </svg>
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <div class="hero__scroll" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5.5 9 12 15.5 18.5 9"></path>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-content" id="recent">
+    <div class="container">
+      <h2 class="section-title"><Lang en={recent.en} zh={recent.zh} /></h2>
+      <PostList posts={posts} />
+    </div>
+  </section>
+</Base>
+
+
+<script>
+  const root = document.documentElement;
+
+  // Posts fade up the first time they scroll into view.
+  const content = document.querySelector<HTMLElement>(".home-content");
+  if (content) {
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          content.classList.add("is-in");
+          observer.disconnect();
+        },
+        { rootMargin: "0px 0px -32% 0px" },
+      );
+      observer.observe(content);
+    } else {
+      content.classList.add("is-in");
+    }
+  }
+
+  // Scroll-linked hand-off: the greeting shrinks and glides up into the navbar
+  // brand, which fades in at the exact moment the two overlap.
+  const shell = document.querySelector<HTMLElement>(".hero-shell");
+  const panel = document.querySelector<HTMLElement>("#hero");
+  const navbar = document.querySelector<HTMLElement>(".navbar");
+  const brand = document.querySelector<HTMLElement>(".navbar__brand");
+  const names = Array.from(document.querySelectorAll<HTMLElement>(".hero__name"));
+
+  if (
+    root.classList.contains("hero-js") &&
+    shell &&
+    panel &&
+    navbar &&
+    brand &&
+    content &&
+    names.length
+  ) {
+    const clamp01 = (value: number) => (value < 0 ? 0 : value > 1 ? 1 : value);
+    const smoothstep = (t: number) => t * t * (3 - 2 * t);
+
+    let name = names[0];
+    let scale = 1;
+    let dx = 0;
+    let dy = 0;
+    let spacing = 0;
+    let spacingTarget = 0;
+    let distance = 1;
+    let queued = false;
+    let brandLive = false;
+    let heroSpent = false;
+
+    /** Re-read every measurement the flight depends on. */
+    function measure() {
+      root.style.setProperty("--nav-h", `${navbar!.getBoundingClientRect().height}px`);
+
+      name = names.find((candidate) => candidate.offsetParent !== null) ?? names[0];
+      for (const candidate of names) {
+        if (candidate === name) continue;
+        candidate.style.removeProperty("transform");
+        candidate.style.removeProperty("letter-spacing");
+        candidate.style.removeProperty("opacity");
+      }
+
+      // Measure the resting position: the transform must be off for this frame.
+      const heldTransform = name.style.transform;
+      const heldSpacing = name.style.letterSpacing;
+      const heldOpacity = name.style.opacity;
+      name.style.transform = "none";
+      name.style.removeProperty("letter-spacing");
+
+      const nameStyle = getComputedStyle(name);
+      const brandStyle = getComputedStyle(brand!);
+      const brandRect = brand!.getBoundingClientRect();
+
+      scale = parseFloat(brandStyle.fontSize) / parseFloat(nameStyle.fontSize);
+      spacing = Number.parseFloat(nameStyle.letterSpacing) || 0;
+      spacingTarget = Number.parseFloat(brandStyle.letterSpacing) || 0;
+
+      const travel = Math.max(1, shell!.offsetHeight - panel!.offsetHeight);
+      // Past the sticky range the panel has already scrolled off; add that back so
+      // the flight is always measured from the pinned reference frame.
+      const overshoot = Math.max(0, (window.scrollY || root.scrollTop) - travel);
+
+      // Measure the box as it will look on arrival, with the brand's tracking
+      // already applied. The name is an inline-block inside a centred line, so
+      // the wider target tracking also pushes its own left edge out; measuring
+      // only the resting state would land the name a few pixels short.
+      name.style.letterSpacing = `${spacingTarget}px`;
+      const startRect = name.getBoundingClientRect();
+      const endWidth = startRect.width;
+      // Land the centre of the name on the centre of the brand: once scaled the
+      // two share font size, weight and tracking, so the swap is invisible.
+      dx = brandRect.left + brandRect.width / 2 - (startRect.left + (endWidth * scale) / 2);
+      dy =
+        brandRect.top +
+        brandRect.height / 2 -
+        (startRect.top + overshoot + startRect.height / 2);
+
+      const contentTop = content!.getBoundingClientRect().top + window.scrollY;
+      // Long enough to read as a glide, but always finishing while the hero is
+      // still pinned: the brand and the flying name have to overlap exactly.
+      distance = Math.max(200, Math.min(travel * 0.86, contentTop - window.innerHeight * 0.66));
+
+      name.style.transform = heldTransform;
+      name.style.letterSpacing = heldSpacing;
+      name.style.opacity = heldOpacity;
+    }
+
+    function paint() {
+      queued = false;
+      const progress = clamp01((window.scrollY || root.scrollTop) / distance);
+
+      const copy = 1 - smoothstep(clamp01((progress - 0.16) / 0.38));
+      const lead = 1 - smoothstep(clamp01((progress - 0.1) / 0.32));
+      // Ease in and out, so the name picks up speed and then settles into the bar.
+      const flight = smoothstep(clamp01((progress - 0.1) / 0.8));
+      const handoff = smoothstep(clamp01((progress - 0.88) / 0.12));
+
+      panel!.style.setProperty("--hero-copy", copy.toFixed(3));
+      panel!.style.setProperty("--hero-lead", lead.toFixed(3));
+      brand!.style.opacity = handoff.toFixed(3);
+
+      // Once the copy is gone the hero is pure decoration, so stop its links
+      // from intercepting clicks meant for the posts underneath.
+      const spent = copy <= 0.01;
+      if (spent !== heroSpent) {
+        heroSpent = spent;
+        panel!.classList.toggle("is-spent", spent);
+      }
+
+      if (progress < 0.002) {
+        name.style.removeProperty("transform");
+        name.style.removeProperty("letter-spacing");
+        name.style.removeProperty("opacity");
+      } else {
+        const grown = 1 + (scale - 1) * flight;
+        const tracking = spacing + (spacingTarget - spacing) * flight;
+        name.style.transform = `translate3d(${(dx * flight).toFixed(2)}px, ${(dy * flight).toFixed(
+          2,
+        )}px, 0) scale(${grown.toFixed(5)})`;
+        name.style.letterSpacing = `${tracking.toFixed(3)}px`;
+        name.style.opacity = (1 - handoff).toFixed(3);
+      }
+
+      const live = handoff > 0.4;
+      if (live !== brandLive) {
+        brandLive = live;
+        brand!.style.pointerEvents = live ? "auto" : "none";
+        // Keep the invisible link out of the tab order and the a11y tree.
+        brand!.style.visibility = live ? "visible" : "hidden";
+      }
+    }
+
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(paint);
+    };
+
+    measure();
+    paint();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", () => {
+      measure();
+      paint();
+    });
+    new MutationObserver(() => {
+      measure();
+      paint();
+    }).observe(root, { attributes: true, attributeFilter: ["data-lang", "data-theme"] });
+    // The title's entrance animation scales it, so a measurement taken before it
+    // settles lands the name a few pixels off the brand. Re-measure once done.
+    panel.querySelector<HTMLElement>(".hero__title")?.addEventListener(
+      "animationend",
+      () => {
+        measure();
+        paint();
+      },
+      { once: true },
+    );
+  }
+</script>

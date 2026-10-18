@@ -1,0 +1,130 @@
+---
+import { render } from "astro:content";
+import "katex/dist/katex.min.css";
+import Base from "./Base.astro";
+import Lang from "../components/Lang.astro";
+import Toc from "../components/Toc.astro";
+import { both } from "../i18n";
+import { SITE, formatDate, isoDate, readingTime, slugify, postUrl, type Post } from "../utils";
+
+interface Props {
+  post: Post;
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { post, headings } = Astro.props;
+const { Content } = await render(post);
+const { title, description, date, updated, authors, affiliations, tags, categories } = post.data;
+
+const labels = {
+  authors: both("authors"),
+  affiliations: both("affiliations"),
+  published: both("published"),
+  updated: both("updated"),
+  readingTime: both("readingTime"),
+};
+const reading = both("minutes", { n: readingTime(post.body) });
+const allPosts = both("allPosts");
+const same = (value: string) => ({ en: value, zh: value });
+
+// Structured data so search engines can show author and date for each post.
+const site = Astro.site ?? SITE.url;
+const postLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: title,
+  description: description || title,
+  datePublished: isoDate(date),
+  ...(updated ? { dateModified: isoDate(updated) } : {}),
+  author: authors.map((name) => ({ "@type": "Person", name })),
+  url: new URL(postUrl(post), site).href,
+  mainEntityOfPage: new URL(postUrl(post), site).href,
+  image: new URL("/og.png", site).href,
+  isPartOf: {
+    "@type": "Blog",
+    name: `${SITE.title} blog`,
+    url: new URL("/", site).href,
+  },
+};
+
+const columns = [
+  { label: labels.authors, values: authors.map(same) },
+  ...(affiliations.length ? [{ label: labels.affiliations, values: affiliations.map(same) }] : []),
+  {
+    label: labels.published,
+    values: [{ en: formatDate(date, "en"), zh: formatDate(date, "zh") }],
+    time: isoDate(date),
+  },
+  ...(updated
+    ? [
+        {
+          label: labels.updated,
+          values: [{ en: formatDate(updated, "en"), zh: formatDate(updated, "zh") }],
+          time: isoDate(updated),
+        },
+      ]
+    : []),
+];
+---
+<Base title={title} description={description || title} type="article">
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(postLd)} />
+  <article data-pagefind-body>
+    <header class="post-header">
+      <h1 data-pagefind-meta="title">{title}</h1>
+      {description && <p class="post-header__desc">{description}</p>}
+      <div class="post-meta-band" data-pagefind-ignore>
+        {
+          columns.map((column) => (
+            <div>
+              <span class="post-meta-band__label">
+                <Lang en={column.label.en} zh={column.label.zh} />
+              </span>
+              <span class="post-meta-band__value">
+                {column.values.map((value, index) => (
+                  <>
+                    {index > 0 && ", "}
+                    {column.time && index === 0 ? (
+                      <time datetime={column.time}>
+                        <Lang en={value.en} zh={value.zh} />
+                      </time>
+                    ) : (
+                      <Lang en={value.en} zh={value.zh} />
+                    )}
+                  </>
+                ))}
+              </span>
+            </div>
+          ))
+        }
+        <div>
+          <span class="post-meta-band__label">
+            <Lang en={labels.readingTime.en} zh={labels.readingTime.zh} />
+          </span>
+          <span class="post-meta-band__value">
+            <Lang en={reading.en} zh={reading.zh} />
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="post-body">
+      <Toc headings={headings} />
+      <div class="prose">
+        <Content />
+        {(tags.length > 0 || categories.length > 0) && (
+          <div class="chip-row" style="margin-top:2.5rem" data-pagefind-ignore>
+            {categories.map((category) => (
+              <a class="chip" href={`/categories/${slugify(category)}/`}>{category}</a>
+            ))}
+            {tags.map((tag) => (
+              <a class="chip" href={`/tags/${slugify(tag)}/`}>#{tag}</a>
+            ))}
+          </div>
+        )}
+        <p style="margin-top:2.5rem" data-pagefind-ignore>
+          <a href="/blog/"><Lang en={allPosts.en} zh={allPosts.zh} /></a>
+        </p>
+      </div>
+    </div>
+  </article>
+</Base>

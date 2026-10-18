@@ -1,0 +1,16 @@
+---
+import Base from "../../layouts/Base.astro";
+import Lang from "../../components/Lang.astro";
+import PostList from "../../components/PostList.astro";
+import { both } from "../../i18n";
+import { sortedPosts } from "../../utils";
+
+const posts = await sortedPosts();
+const heading = both("blog");
+---
+<Base title="Blog" description="All posts">
+  <section class="intro">
+    <h1><Lang en={heading.en} zh={heading.zh} /></h1>
+  </section>
+  <PostList posts={posts} />
+</Base>

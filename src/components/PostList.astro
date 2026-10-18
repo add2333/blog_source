@@ -1,0 +1,57 @@
+---
+import Lang from "./Lang.astro";
+import { both } from "../i18n";
+import { formatDate, isoDate, postUrl, readingTime, slugify, type Post } from "../utils";
+
+interface Props {
+  posts: Post[];
+}
+const { posts } = Astro.props;
+---
+<ul class="post-list">
+  {
+    posts.map((post, index) => {
+      const year = post.data.date.getUTCFullYear();
+      const length = both("minRead", { n: readingTime(post.body) });
+      // Cap the stagger: with 20 posts the last one should not wait 1.4s.
+      return (
+        <li class="post-list__item animate-in" style={`--i:${Math.min(index, 6)}`}>
+          <h2 class="post-list__title">
+            <a href={postUrl(post)}>{post.data.title}</a>
+          </h2>
+          {post.data.description && <p class="post-list__desc">{post.data.description}</p>}
+          <p class="post-list__meta">
+            <span><Lang en={length.en} zh={length.zh} /></span>
+            <span class="dot" aria-hidden="true" />
+            <time datetime={isoDate(post.data.date)}>
+              <Lang
+                en={formatDate(post.data.date, "en")}
+                zh={formatDate(post.data.date, "zh")}
+              />
+            </time>
+          </p>
+          {/* Year link and taxonomy sit on one row: fewer stacked lines per card. */}
+          <div class="chip-row">
+            <a class="year-tag" href={`/blog/${year}/`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="2" />
+                <path d="M3 10h18M8 3v4M16 3v4" />
+              </svg>
+              {year}
+            </a>
+            {post.data.categories.map((category) => (
+              <a class="chip" href={`/categories/${slugify(category)}/`}>
+                {category}
+              </a>
+            ))}
+            {post.data.tags.map((tag) => (
+              <a class="chip" href={`/tags/${slugify(tag)}/`}>
+                #{tag}
+              </a>
+            ))}
+          </div>
+        </li>
+      );
+    })
+  }
+</ul>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://add2333.github.io/sitemap-index.xml

@@ -1,0 +1,1156 @@
+/* ---------------------------------------------------------------
+   Design tokens — Apple-flavoured: white and #f5f5f7 surfaces,
+   near-black type, one blue accent, generous radii.
+   --------------------------------------------------------------- */
+:root {
+  /* Keep scrollbars and form controls in step with the page theme. */
+  color-scheme: light;
+  accent-color: var(--accent);
+
+  --bg: #ffffff;
+  --bg-soft: #f5f5f7;
+  --bg-elevated: #ffffff;
+  --text: #1d1d1f;
+  --text-strong: #1d1d1f;
+  /* Apple's own secondary grey; 5.1:1 on white, 4.8:1 on #f5f5f7. */
+  --text-muted: #6e6e73;
+  --border: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.22);
+  /* Apple blue: 5.6:1 on white, so it works as body-copy link colour. */
+  --accent: #0066cc;
+  --accent-soft: rgba(0, 102, 204, 0.1);
+  --code-bg: #f5f5f7;
+  --mark: rgba(0, 102, 204, 0.16);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI",
+    Roboto, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --container: 930px;
+  --measure: 46rem;
+  --radius: 12px;
+  --radius-lg: 18px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --bg-soft: #1d1d1f;
+  --bg-elevated: #1d1d1f;
+  --text: #f5f5f7;
+  --text-strong: #f5f5f7;
+  --text-muted: #86868b;
+  --border: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.28);
+  --accent: #2997ff;
+  --accent-soft: rgba(41, 151, 255, 0.16);
+  --code-bg: #1d1d1f;
+  --mark: rgba(41, 151, 255, 0.24);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #000000;
+    --bg-soft: #1d1d1f;
+    --bg-elevated: #1d1d1f;
+    --text: #f5f5f7;
+    --text-strong: #f5f5f7;
+    --text-muted: #86868b;
+    --border: rgba(255, 255, 255, 0.14);
+    --border-strong: rgba(255, 255, 255, 0.28);
+    --accent: #2997ff;
+    --accent-soft: rgba(41, 151, 255, 0.16);
+    --code-bg: #1d1d1f;
+    --mark: rgba(41, 151, 255, 0.24);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  overflow-wrap: break-word;
+}
+
+::selection {
+  background: var(--mark);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ------------------------------- navbar ------------------------------- */
+.progress {
+  position: fixed;
+  inset: 0 auto auto 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  z-index: 40;
+  transition: width 90ms linear;
+}
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  /* Apple's translucent bar: mostly page colour, heavy blur, hairline edge. */
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.navbar__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 1.6rem;
+  min-height: 3rem;
+  padding-block: 0.45rem;
+}
+
+.navbar__brand {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--text-strong);
+}
+
+.navbar__brand:hover {
+  text-decoration: none;
+  color: var(--accent);
+}
+
+.navbar__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 1.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.navbar__links a {
+  color: var(--text);
+}
+
+.navbar__links a[aria-current="page"] {
+  color: var(--accent);
+}
+
+@media (max-width: 34rem) {
+  .navbar__inner {
+    justify-content: flex-start;
+  }
+
+  .navbar__brand {
+    font-size: 1rem;
+  }
+
+  .navbar__links {
+    font-size: 0.9rem;
+    gap: 0.3rem 0.8rem;
+  }
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  border-color: var(--border);
+  color: var(--accent);
+}
+
+.theme-toggle svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.05rem;
+  height: 2.05rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.lang-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.lang-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------- i18n --------------------------------- */
+html[data-lang="zh"] .i18n-en {
+  display: none;
+}
+
+html:not([data-lang="zh"]) .i18n-zh {
+  display: none;
+}
+
+/* Light mode shows the moon, dark mode shows the sun. */
+.theme-toggle .icon-sun {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-toggle .icon-sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun {
+    display: block;
+  }
+
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon {
+    display: none;
+  }
+}
+
+/* ------------------------------- layout ------------------------------- */
+main {
+  flex: 1 0 auto;
+  padding-block: 2.5rem 4rem;
+}
+
+.footer {
+  margin-top: 5rem;
+  background: var(--bg-soft);
+  border-top: 1px solid var(--border);
+  padding-block: 1.75rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  justify-content: space-between;
+}
+
+/* ------------------------------ page intro ---------------------------- */
+.intro {
+  display: grid;
+  gap: 0.75rem;
+  padding-bottom: 1.25rem;
+}
+
+.intro h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  color: var(--text-strong);
+}
+
+.intro p {
+  margin: 0;
+  max-width: var(--measure);
+  color: var(--text-muted);
+}
+
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+}
+
+/* ------------------------------ home hero ----------------------------- */
+/* First screen, Apple-style: one centred stack on a grey surface, and the
+   name flies up into the navbar as you scroll (script in pages/index.astro). */
+.page-home main {
+  /* The hero paints its own full-bleed surface, so the shell must not be
+     boxed into .container — the inner blocks do their own centring. */
+  max-width: none;
+  padding-inline: 0;
+  padding-block: 0;
+  /* Extra scroll room for the flight and how far the posts overlap the hero.
+     Both stay at zero until JS opts in, so the page works without scripts. */
+  --hero-extra: 0svh;
+  --hero-overlap: 0svh;
+}
+
+html.hero-js body.page-home main {
+  --hero-extra: 62vh;
+  --hero-extra: 62svh;
+  --hero-overlap: 40vh;
+  --hero-overlap: 40svh;
+}
+
+.page-home .hero-shell {
+  position: relative;
+  height: calc(100vh - var(--nav-h, 3rem) + var(--hero-extra));
+  height: calc(100svh - var(--nav-h, 3rem) + var(--hero-extra));
+  background: var(--bg-soft);
+}
+
+.page-home .hero {
+  position: sticky;
+  top: var(--nav-h, 3rem);
+  display: grid;
+  align-items: center;
+  height: calc(100vh - var(--nav-h, 3rem));
+  height: calc(100svh - var(--nav-h, 3rem));
+}
+
+.page-home .hero__inner {
+  display: grid;
+  gap: 1.15rem;
+  justify-items: center;
+  max-width: 44rem;
+  text-align: center;
+}
+
+.page-home .hero__copy {
+  display: grid;
+  gap: 1.6rem;
+  justify-items: center;
+  opacity: var(--hero-copy, 1);
+  transform: translateY(calc((1 - var(--hero-copy, 1)) * -12px));
+}
+
+.page-home .hero__title {
+  margin: 0;
+  font-size: clamp(2.5rem, 6.4vw, 4.75rem);
+  font-weight: 600;
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  color: var(--text-strong);
+  text-wrap: balance;
+}
+
+/* CJK glyphs are wider per character; keep the greeting on one or two lines. */
+html[data-lang="zh"] .page-home .hero__title {
+  font-size: clamp(2.25rem, 5.4vw, 4rem);
+}
+
+.page-home .hero__lead,
+.page-home .hero__tail {
+  opacity: var(--hero-lead, 1);
+}
+
+/* The one element that flies: kept in flow, moved with a transform only. */
+.page-home .hero__name {
+  position: relative;
+  z-index: 31;
+  display: inline-block;
+  transform-origin: 0 50%;
+  white-space: nowrap;
+  will-change: transform, opacity;
+}
+
+.page-home .hero__lede {
+  margin: 0;
+  max-width: 30rem;
+  font-size: clamp(1.0625rem, 1.5vw, 1.375rem);
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.page-home .hero__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 2rem;
+  margin: 0.35rem 0 0;
+  font-size: 1.0625rem;
+}
+
+.page-home .hero__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.page-home .hero__link svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-top: 0.1em;
+}
+
+.page-home .hero__link:hover {
+  text-decoration: underline;
+}
+
+/* Quiet scroll affordance pinned to the bottom edge of the first screen. */
+.page-home .hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 2rem;
+  translate: -50% 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--text-muted);
+  opacity: calc(var(--hero-copy, 1) * 0.85);
+}
+
+.page-home .hero__scroll svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-home .hero__title {
+    animation: hero-title-in 760ms ease 90ms backwards;
+  }
+
+  /* Hold the posts back until the first screen has handed over. */
+  body.page-home .home-content .animate-in {
+    animation: none;
+  }
+
+  body.page-home .home-content.is-in .animate-in {
+    animation: rise 520ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+}
+
+@keyframes hero-title-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+.page-home .home-content {
+  position: relative;
+  z-index: 2;
+  margin-top: calc(-1 * var(--hero-overlap));
+  padding-block: 4.5rem 0;
+  background: var(--bg);
+}
+
+.page-home .home-content .section-title {
+  margin-top: 0;
+}
+
+/* The greeting flies up over the translucent bar, so the sticky hero has to
+   outrank the navbar. A sticky box establishes its own stacking context, which
+   would otherwise trap .hero__name's z-index below the bar and hide the name
+   behind the blur for the last stretch of the flight. */
+html.hero-js body.page-home .hero {
+  z-index: 31;
+  /* The panel spans the whole first screen; only its links should take clicks,
+     so posts sliding up underneath stay usable. */
+  pointer-events: none;
+}
+
+html.hero-js body.page-home .hero__link {
+  pointer-events: auto;
+}
+
+/* Once the copy has faded the panel is decoration, links included. */
+html.hero-js body.page-home .hero.is-spent,
+html.hero-js body.page-home .hero.is-spent .hero__link {
+  pointer-events: none;
+}
+
+/* On the home screen the navbar keeps its blur, but the wordmark only shows
+   up once the flying name has landed in it. */
+html.hero-js body.page-home .navbar__brand {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 34rem) {
+  .page-home .hero__inner {
+    gap: 1rem;
+  }
+
+  .page-home .hero__title {
+    font-size: clamp(2.1rem, 8.8vw, 2.9rem);
+  }
+
+  html[data-lang="zh"] .page-home .hero__title {
+    font-size: clamp(1.9rem, 8vw, 2.6rem);
+  }
+
+  .page-home .hero__links {
+    gap: 0.6rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .page-home .home-content {
+    padding-block-start: 3rem;
+  }
+}
+
+/* ------------------------------ post list ----------------------------- */
+.post-list {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-list__item {
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-soft);
+}
+
+.post-list__title {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.4vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.post-list__title a {
+  color: var(--text-strong);
+}
+
+.post-list__title a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.post-list__desc {
+  margin: 0.6rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.post-list__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  /* Push metadata and tags to the bottom edge of the card. */
+  margin-top: auto;
+  padding-top: 1.1rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.post-list__meta .dot::before {
+  content: "·";
+}
+
+.year-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.year-tag:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.year-tag svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: transparent;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ------------------------------ taxonomy ------------------------------ */
+.taxonomy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.taxonomy a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+}
+
+.taxonomy a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.taxonomy small {
+  color: var(--text-muted);
+}
+
+/* ------------------------------- article ------------------------------ */
+.post-header {
+  padding-top: 1rem;
+}
+
+.post-header h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 5.6vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: -0.024em;
+  line-height: 1.1;
+  color: var(--text-strong);
+}
+
+.post-header__desc {
+  margin: 0.85rem 0 0;
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: var(--measure);
+}
+
+.post-meta-band {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1rem 2rem;
+  margin-top: 2rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.post-meta-band__label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.post-meta-band__value {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-strong);
+}
+
+.post-body {
+  --toc-width: 14rem;
+  --toc-gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--toc-gap);
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 1000px) {
+  .post-body {
+    --toc-gap: 3rem;
+    flex-direction: row;
+    align-items: flex-start;
+    transition: padding-right 340ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .post-body[data-toc="closed"] {
+    --toc-width: 2.25rem;
+    /* Mirror the folded rail on the right, so the article column stays centred. */
+    padding-right: calc(var(--toc-width) + var(--toc-gap));
+  }
+}
+
+/* -------------------- table of contents (folding rail) ---------------- */
+.toc {
+  position: relative;
+  align-self: start;
+  font-size: 0.9375rem;
+}
+
+.toc__toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.toc__toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toc__toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toc__chevron {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.post-body[data-toc="closed"] .toc__chevron {
+  transform: rotate(180deg);
+}
+
+/* On phones the rail folds downwards, so point the chevron that way. */
+@media (max-width: 999.98px) {
+  .toc__chevron {
+    transform: rotate(90deg);
+  }
+
+  .post-body[data-toc="closed"] .toc__chevron {
+    transform: rotate(-90deg);
+  }
+}
+
+.toc__heading {
+  margin: 0;
+  padding-right: 2.4rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+}
+
+/* On phones the list folds vertically … */
+.toc__collapse {
+  display: grid;
+  grid-template-rows: 1fr;
+  margin-top: 0.85rem;
+  transition: grid-template-rows 340ms cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 340ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.toc__collapse > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.post-body[data-toc="closed"] .toc__collapse {
+  grid-template-rows: 0fr;
+  margin-top: 0;
+}
+
+.toc__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity 200ms ease;
+}
+
+.post-body[data-toc="closed"] .toc__list {
+  opacity: 0;
+}
+
+.toc__list a {
+  display: block;
+  padding: 0.2rem 0;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.toc__list a:hover,
+.toc__list a[data-active] {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* … while on wide screens the whole sidebar folds sideways and the
+   article column recentres itself in the freed-up space. */
+@media (min-width: 1000px) {
+  .toc {
+    position: sticky;
+    top: 5.5rem;
+    flex: 0 0 var(--toc-width);
+    width: var(--toc-width);
+    max-height: calc(100vh - 8rem);
+    overflow: hidden;
+    transition: flex-basis 340ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 340ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .toc__panel {
+    width: 14rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+    transition: opacity 220ms ease;
+  }
+
+  .post-body[data-toc="closed"] .toc__panel {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc,
+  .toc__panel,
+  .toc__collapse,
+  .toc__list,
+  .toc__chevron,
+  .prose,
+  .post-body {
+    transition: none;
+  }
+}
+
+/* --------------------------- article content -------------------------- */
+.prose {
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
+  min-width: 0;
+  line-height: 1.72;
+  transition: max-width 340ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Standalone pages (about, 404) put a left-aligned heading above the prose, so
+   the prose lines up with it instead of centring itself in the container. */
+.intro + .prose {
+  margin-inline: 0;
+}
+
+@media (min-width: 1000px) {
+  .prose {
+    flex: 1 1 auto;
+  }
+}
+
+.prose > * + * {
+  margin-top: 1.25rem;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  color: var(--text-strong);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  scroll-margin-top: 5rem;
+}
+
+.prose h2 {
+  margin-top: 3rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.prose h3 {
+  margin-top: 2.25rem;
+  font-size: 1.375rem;
+  font-weight: 600;
+}
+
+.prose h4 {
+  margin-top: 1.75rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.35rem;
+}
+
+.prose li + li {
+  margin-top: 0.35rem;
+}
+
+.prose li::marker {
+  color: var(--text-muted);
+}
+
+.prose blockquote {
+  margin-inline: 0;
+  padding: 0.35rem 0 0.35rem 1.1rem;
+  border-left: 2px solid var(--accent);
+  color: var(--text-muted);
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+.prose a {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  text-underline-offset: 0.18em;
+}
+
+.prose a:hover {
+  text-decoration-color: var(--accent);
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+.prose :not(pre) > code {
+  padding: 0.15em 0.4em;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-soft);
+}
+
+.prose pre {
+  position: relative;
+  margin-inline: 0;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.prose pre code {
+  font-size: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.copy-code {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms ease-in;
+}
+
+.prose pre:hover .copy-code,
+.copy-code:focus-visible {
+  opacity: 1;
+}
+
+/* Touch devices never hover, so keep the button visible there. */
+@media (hover: none) {
+  .copy-code {
+    opacity: 1;
+  }
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.prose th,
+.prose td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.prose th {
+  background: var(--bg-soft);
+  color: var(--text-strong);
+}
+
+/* Shiki dual themes */
+:root[data-theme="dark"] .astro-code,
+:root[data-theme="dark"] .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .astro-code,
+  :root:not([data-theme="light"]) .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
+}
+
+/* ------------------------------ footnotes ----------------------------- */
+.prose .footnotes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ------------------------------- search ------------------------------- */
+.search-shell {
+  --pagefind-ui-scale: 0.95;
+  --pagefind-ui-primary: var(--accent);
+  --pagefind-ui-text: var(--text);
+  --pagefind-ui-background: var(--bg);
+  --pagefind-ui-border: var(--border);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: var(--radius);
+  --pagefind-ui-font: var(--font-sans);
+}
+
+.search-hint {
+  margin-top: 1.25rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+/* ------------------------------ animation ----------------------------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-in {
+    animation: rise 480ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+}
